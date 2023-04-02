@@ -1,0 +1,52 @@
+version: "3"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: /home/developer/docker-demo/apps/app/Dockerfile
+    restart: always
+    container_name: app_application
+    volumes:
+    - ./.env:/opt/app/.env
+    ports:
+    - 3001:80
+    networks:
+    - salonet
+  converter:
+    build:
+      context: .
+      dockerfile: /home/developer/docker-demo/apps/converter/Dockerfile
+    restart: always
+    container_name: converter_application
+    volumes:
+    - ./.env:/opt/app/.env
+    networks:
+    - salonet
+    depends_on:
+    - rmq
+  api:
+    build:
+      context: .
+      dockerfile: /home/developer/docker-demo/apps/api/Dockerfile
+    restart: always
+    container_name: api_application
+    volumes:
+    - ./.env:/opt/app/.env
+    ports:
+    - 3002:3000
+    networks:
+    - salonet
+    depends_on:
+    - rmq
+  rmq:
+    image: rabbitmq:3-management
+    restart: always
+    networks:
+    - salonet
+    environment:
+    - RABBITMQ_DEFAULT_USER=admin
+    - RABBITMQ_DEFAULT_PASS=admin
+    container_name: rmq_application
+networks:
+  salonet:
+    driver: bridge
